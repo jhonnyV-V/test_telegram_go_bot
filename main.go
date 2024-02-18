@@ -3,8 +3,7 @@ package main
 import (
 	"log"
   "os"
-  "fmt"
-	//. "collect3/renterd-telegram-alerts/utils"
+	. "collect3/renterd-telegram-alerts/utils"
 	. "collect3/renterd-telegram-alerts/commands"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -22,12 +21,12 @@ func getEnvVar(key string) string {
 }
 
 func main() {
-  //db, err := OpenDB("sqlite3", "./db/local.db")
-  //if err != nil {
-	//	log.Panic(err)
-	//}
+  db, err := OpenDB("sqlite3", "./db/local.db")
+  if err != nil {
+		log.Panic(err)
+	}
 
-  //db.Migrate()
+  db.Migrate()
 
 	bot, err := tgbotapi.NewBotAPI(getEnvVar("TELEGRAM_API_TOKEN"))
 	if err != nil {
@@ -61,14 +60,16 @@ func main() {
     //TODO: use the renterd /api/bus/webhooks to register the webhooks
     //TODO: use the renter /api/bus/webhook/delete to delete webhooks
 
-		// Extract the command from the Message.
-    rawMessage := update.Message.Text
     command := update.Message.Command()
-    fmt.Println(rawMessage)
-    //TODO: take the message remove the command part, trim it,
-    //check if it have a space, in that case split it and take the strings as arguments
-    
-    //TODO: to send the alerts check the origin url/ip of the caller of the endpoint 
+
+    //ignore most comments above, change in perspective
+    //TODO: 5 commands
+    //1- subscribe
+    //2- unsubscribe
+    //3- create_listener
+    //4- listen
+    //5- silence
+    //maybe others like stats
     var err error
 		switch command {
 		case "help":
@@ -80,13 +81,11 @@ func main() {
 		case "status":
 			msg.Text = "I'm ok."
       _, err = bot.Send(msg)
-    case "register":
-      err = Register(
-        bot,
-        &msg,
-        command,
-        update.Message.Text,
-      )
+    case "subscribe":
+      err = Subscribe(bot, &msg)
+    case "unsubscribe":
+      err = Unsubscribe(bot, &msg)
+    //case "register": err = Register( bot, &msg, command, update.Message.Text,)
 		default:
 			msg.Text = "I don't know that command"
       _, err = bot.Send(msg)
