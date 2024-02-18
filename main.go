@@ -5,6 +5,7 @@ import (
   "os"
   "fmt"
 	//. "collect3/renterd-telegram-alerts/utils"
+	. "collect3/renterd-telegram-alerts/commands"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/joho/godotenv"
@@ -68,18 +69,29 @@ func main() {
     //check if it have a space, in that case split it and take the strings as arguments
     
     //TODO: to send the alerts check the origin url/ip of the caller of the endpoint 
+    var err error
 		switch command {
 		case "help":
-			msg.Text = "I understand /sayhi and /status."
+			msg.Text = "I understand /sayhi, /status and /register."
+      _, err = bot.Send(msg)
 		case "sayhi":
 			msg.Text = "Hi :)"
+      _, err = bot.Send(msg)
 		case "status":
 			msg.Text = "I'm ok."
+      _, err = bot.Send(msg)
+    case "register":
+      err = Register(
+        bot,
+        &msg,
+        command,
+        update.Message.Text,
+      )
 		default:
 			msg.Text = "I don't know that command"
+      _, err = bot.Send(msg)
 		}
-
-		if _, err := bot.Send(msg); err != nil {
+		if err != nil {
 			log.Panic(err)
 		}
 	}
